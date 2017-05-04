@@ -17,6 +17,7 @@ public class RuntimeOptions {
     private Boolean dryRun = null;
     private Boolean strict = null;
     private Boolean monochrome = null;
+    private String individualTestParallelRuns = "1";
 
     /**
      * Create a new instance from a string of options, for example:
@@ -116,4 +117,11 @@ public class RuntimeOptions {
         return pluginNames;
     }
 
+    public String getIndividualTestParallelRuns() {
+        return individualTestParallelRuns;
+    }
+
+    public void setIndividualTestParallelRuns(String individualTestParallelRuns) {
+        this.individualTestParallelRuns = individualTestParallelRuns;
+    }
 }

@@ -47,6 +47,8 @@ public class CucumberITGeneratorByScenario implements CucumberITGenerator {
     private final ClassNamingScheme classNamingScheme;
 
 
+    private int individualTestParallelRuns = 1;
+
     /**
      * @param config               The configuration parameters passed to the Maven Mojo
      * @param overriddenParameters Parameters overridden from Cucumber options VM parameter (-Dcucumber.options)
@@ -78,8 +80,14 @@ public class CucumberITGeneratorByScenario implements CucumberITGenerator {
             name = "cucumber-junit-runner.java.vm";
         }
         final VelocityEngine engine = new VelocityEngine(props);
+        try {
+            this.individualTestParallelRuns = Integer.parseInt(overriddenParameters.getIndividualTestParallelRuns());
+        } catch (NumberFormatException e) {
+            this.individualTestParallelRuns = 1;
+        }
         engine.init();
         velocityTemplate = engine.getTemplate(name, config.getEncoding());
+
     }
 
     /**
@@ -110,10 +118,15 @@ public class CucumberITGeneratorByScenario implements CucumberITGenerator {
             final Collection<Node> matchingScenariosAndExamples =
                             tagFilter.matchingScenariosAndExamples(feature);
 
+
             for (final Node match : matchingScenariosAndExamples) {
+            for(int i = 0; i< individualTestParallelRuns; i++) {
+                System.out.println("parallel " + i + " out of " + individualTestParallelRuns);
                 outputFileName = classNamingScheme.generate(file.getName());
                 setFeatureFileLocation(file, match.getLocation());
                 writeFile(outputDirectory);
+            }
+
             }
 
         }

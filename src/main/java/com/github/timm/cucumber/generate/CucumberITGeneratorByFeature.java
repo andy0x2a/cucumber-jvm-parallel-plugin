@@ -46,7 +46,7 @@ public class CucumberITGeneratorByFeature implements CucumberITGenerator {
     private Template velocityTemplate;
     private String outputFileName;
     private final ClassNamingScheme classNamingScheme;
-
+    private int individualTestParallelRuns = 1;
 
     /**
      * @param config               The configuration parameters passed to the Maven Mojo
@@ -79,8 +79,14 @@ public class CucumberITGeneratorByFeature implements CucumberITGenerator {
             name = "cucumber-junit-runner.java.vm";
         }
         final VelocityEngine engine = new VelocityEngine(props);
+        try {
+            this.individualTestParallelRuns = Integer.parseInt(overriddenParameters.getIndividualTestParallelRuns());
+        } catch (NumberFormatException e) {
+            this.individualTestParallelRuns = 1;
+        }
         engine.init();
         velocityTemplate = engine.getTemplate(name, config.getEncoding());
+
     }
 
     /**
@@ -96,23 +102,27 @@ public class CucumberITGeneratorByFeature implements CucumberITGenerator {
         Feature feature = null;
         for (final File file : featureFiles) {
 
-            try {
-                feature = parser.parse(new FileReader(file), new TokenMatcher());
-            } catch (final FileNotFoundException e) {
-                // should never happen
-                // TODO - proper logging
-                System.out.println(format("WARNING: Failed to parse '%s'...IGNORING",
-                        file.getName()));
+            for(int i = 0; i< individualTestParallelRuns; i++) {
+                System.out.println("parallel " + i + " out of " + individualTestParallelRuns);
+                try {
+                    feature = parser.parse(new FileReader(file), new TokenMatcher());
+                } catch (final FileNotFoundException e) {
+                    // should never happen
+                    // TODO - proper logging
+                    System.out.println(format("WARNING: Failed to parse '%s'...IGNORING",
+                            file.getName()));
+                }
+
+                if (shouldSkipFeature(feature)) {
+                    continue;
+                }
+
+
+                outputFileName = classNamingScheme.generate(file.getName());
+                setFeatureFileLocation(file);
+                writeFile(outputDirectory);
             }
 
-            if (shouldSkipFeature(feature)) {
-                continue;
-            }
-
-
-            outputFileName = classNamingScheme.generate(file.getName());
-            setFeatureFileLocation(file);
-            writeFile(outputDirectory);
 
         }
     }

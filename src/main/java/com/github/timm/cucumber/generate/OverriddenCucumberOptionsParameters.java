@@ -13,6 +13,7 @@ class OverriddenCucumberOptionsParameters {
     private boolean strict;
     private List<Plugin> plugins;
     private boolean monochrome;
+    private String individualTestParallelRuns;
 
     public OverriddenCucumberOptionsParameters setTags(final List<String> tags) {
         this.tags = requireNoneBlank(tags, "The parameters 'tags' are missing or invalid");
@@ -128,5 +129,21 @@ class OverriddenCucumberOptionsParameters {
             }
         }
         return list;
+    }
+
+    public OverriddenCucumberOptionsParameters setIndividualTestParallelRuns(String individualTestParallelRuns) {
+        this.individualTestParallelRuns = individualTestParallelRuns;
+        return this;
+    }
+
+    public String getIndividualTestParallelRuns() {
+        return individualTestParallelRuns;
+    }
+
+    OverriddenCucumberOptionsParameters overrideIndividualTestParallelRuns(String individualTestParallelRuns) {
+        if (individualTestParallelRuns != null) {
+            this.individualTestParallelRuns = individualTestParallelRuns;
+        }
+        return this;
     }
 }

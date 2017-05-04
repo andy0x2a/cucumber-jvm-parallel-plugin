@@ -64,6 +64,13 @@ public class GenerateRunnersMojo extends AbstractMojo implements FileGeneratorCo
     @Parameter(property = "cucumber.glue", required = true)
     private List<String> glue;
 
+
+    /**
+     * The Parallelism (EP)
+     */
+    @Parameter(defaultValue = "1", property = "individualTestParallelRuns", required = false)
+    private String individualTestParallelRuns;
+
     /**
      * Location of the generated files.
      */
@@ -204,6 +211,9 @@ public class GenerateRunnersMojo extends AbstractMojo implements FileGeneratorCo
 
         if (!packageDirectory.exists()) {
             packageDirectory.mkdirs();
+        } else {
+            packageDirectory.delete();
+            packageDirectory.mkdir();
         }
 
         final CucumberITGenerator fileGenerator = createFileGenerator();
@@ -242,6 +252,7 @@ public class GenerateRunnersMojo extends AbstractMojo implements FileGeneratorCo
                 new OverriddenCucumberOptionsParameters()
                     .setTags(tags)
                     .setGlue(glue)
+                    .setIndividualTestParallelRuns(individualTestParallelRuns)
                     .setStrict(strict)
                     .setPlugins(parseFormatAndPlugins(format, plugins == null ? new ArrayList<Plugin>() : plugins))
                     .setMonochrome(monochrome);
@@ -252,6 +263,7 @@ public class GenerateRunnersMojo extends AbstractMojo implements FileGeneratorCo
                 overriddenParameters
                     .overrideTags(options.getFilters())
                     .overrideGlue(options.getGlue())
+                     .overrideIndividualTestParallelRuns(options.getIndividualTestParallelRuns())
                     .overridePlugins(parsePlugins(options.getPluginNames()))
                     .overrideStrict(options.isStrict())
                     .overrideMonochrome(options.isMonochrome());
